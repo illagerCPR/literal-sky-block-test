@@ -91,6 +91,8 @@ repositories {
 dependencies {
 	// compileOnly("curse.maven:oculus-581495:5299671")
 	// compileOnly("curse.maven:rubidium-574856:4952685")
+    implementation "curse.maven:sodium-394468:6382651"
+    implementation "curse.maven:irisshaders-455508:6661598"
 }
 
 processResources {

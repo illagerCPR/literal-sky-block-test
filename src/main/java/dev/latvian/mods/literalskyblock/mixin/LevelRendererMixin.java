@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.latvian.mods.literalskyblock.client.CapturedInfo;
 import dev.latvian.mods.literalskyblock.client.LSBClient;
 import dev.latvian.mods.literalskyblock.client.LevelRendererLSB;
+import dev.latvian.mods.literalskyblock.integration.IrisCompat;
+import net.neoforged.fml.ModList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.DeltaTracker;
@@ -52,6 +54,9 @@ public abstract class LevelRendererMixin implements LevelRendererLSB {
 	@Unique
 	private CapturedInfo lsb$capturedInfo = null;
 
+	@Unique
+	private static final boolean lsb$irisLoaded = ModList.get().isLoaded("iris");
+
 	@Inject(method = "renderLevel", at = @At(value = "HEAD"))
 	private void lsb$captureFrustum(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		lsb$capturedInfo = new CapturedInfo(lightTexture, frustumMatrix, projectionMatrix);
@@ -84,6 +89,10 @@ public abstract class LevelRendererMixin implements LevelRendererLSB {
 
 		var modelViewStack = RenderSystem.getModelViewStack();
 		var levelRenderer = (LevelRenderer) (Object) this;
+
+		if (lsb$irisLoaded) {
+			IrisCompat.preRender(levelRenderer);
+		}
 
 		var lightTexture = lsb$capturedInfo.lightTexture();
 		var frustumMatrix = lsb$capturedInfo.frustumMatrix();
@@ -126,5 +135,9 @@ public abstract class LevelRendererMixin implements LevelRendererLSB {
 		RenderSystem.depthMask(true);
 		RenderSystem.disableBlend();
 		FogRenderer.setupNoFog();
+
+		if (lsb$irisLoaded) {
+			IrisCompat.postRender(levelRenderer);
+		}
 	}
 }
